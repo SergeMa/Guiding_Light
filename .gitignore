@@ -105,3 +105,10 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# ---------------------------------------------------------------------------
+# Project-specific, kept below the synced template above
+
+# WebGL build output left at the project root. Burst writes lib_burst_generated
+# .cpp/.wasm here; they are build artefacts regenerated on every build, not sources.
+/Data/
