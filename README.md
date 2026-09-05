@@ -26,6 +26,9 @@ On Android and iOS an on-screen pad appears instead: a direction cross on the le
 two buttons on the right that turn the nearest mirror either way, and a restart ring
 in the corner. Tap anywhere to start or to play again.
 
+On mobile it also locks to landscape — both ways up, so the device can still be flipped —
+because the levels are wide and portrait would shrink them to nothing.
+
 It switches itself on by platform (`GameManager.touchControls`, default `Auto`), so a
 desktop build behaves exactly as it always did — the pad reserves no screen, reads no
 pointers and draws nothing. `Always` forces it on if you want to try it in the editor
@@ -110,8 +113,13 @@ but it means such a layout is a dead end rather than a clever trick.
 
 ## Levels
 
-Twenty-four levels in six phases — tutorial (1–3), combine (4–9), walk the light (10–13),
-escalate (14–19), converge (20–23), finale (24).
+Thirty levels in six phases — tutorial (1–4), combine (5–12), walk the light (13–16),
+escalate (17–24), converge (25–29), finale (30).
+
+Pacing note for a jam: the whole set is 20–30 minutes, and a judge will usually give a
+game 5–10. Most levels are one or two mirror turns and under half a minute; the long ones
+are deliberately late (25, 27, 29). `[` and `]` jump between levels, which is the fastest
+way to show someone a specific mechanic.
 
 *Walk the light* is a four-room act on one idea: the darkness is not an obstacle to clear
 but a floor to lay. The beam stops being a switch and becomes a road — one you lead, one
@@ -127,7 +135,7 @@ visuals and the collision all come from that one string.
 ```
 Assets/Scripts/FirstLight/
   LightSim.cs       tiles, one-sided mirror maths, level parsing, the beam solver
-  LevelLibrary.cs   the twenty-four maps
+  LevelLibrary.cs   the thirty maps
   LevelView.cs      builds a level's visuals and keeps them in sync with the light
   GameManager.cs    camera, player, level flow, HUD
   Art.cs            every sprite, generated at runtime
@@ -180,7 +188,7 @@ The design document left five questions open. These are the answers the build as
 them are cheap to change.
 
 1. **Rotate in place only.** Mirrors turn where they stand; nothing is carried. Rotation alone
-   carries all twenty-four levels, and carryable mirrors were listed as the first thing to cut.
+   carries all thirty levels, and carryable mirrors were listed as the first thing to cut.
 2. **The clouds are hazardous.** Walking into living darkness sends you back to where the
    level started — a cost in time, with no health bar or fail state to build around.
 3. **Failure is local.** A death moves you, not the room: mirrors, charged receivers and

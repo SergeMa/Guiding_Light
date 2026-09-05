@@ -61,7 +61,18 @@ namespace FirstLight
             cam.transform.position = new Vector3(0, 0, -10);
 
             touch.Mode = touchControls;
-            if (touch.Active) Screen.sleepTimeout = SleepTimeout.NeverSleep;
+            if (touch.Active)
+            {
+                Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+                // Levels are wide, so portrait would shrink them to nothing. Lock to
+                // landscape but leave both ways up, so the device can still be flipped.
+                Screen.autorotateToLandscapeLeft = true;
+                Screen.autorotateToLandscapeRight = true;
+                Screen.autorotateToPortrait = false;
+                Screen.autorotateToPortraitUpsideDown = false;
+                Screen.orientation = ScreenOrientation.AutoRotation;
+            }
 
             levels = LevelLibrary.Build();
             sfx = Sfx.Create(transform);

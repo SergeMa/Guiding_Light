@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace FirstLight
 {
     /// <summary>
-    /// The twenty-four levels, as ASCII maps. Every map here has been checked with an
+    /// The thirty levels, as ASCII maps. Every map here has been checked with an
     /// exhaustive solver (player position x mirror orientations x cleared eyes), so
     /// each one is guaranteed reachable-and-solvable from its starting state.
     ///
@@ -63,6 +63,19 @@ namespace FirstLight
 #....._...@.#
 #############"),
 
+            new LevelDef("Held Breath", "The bridge is lit by the beam you are about to need elsewhere.", @"
+#############
+#...._.....X#
+#...._......#
+#>..._.....2#
+#...._......#
+#....b......#
+#...._......#
+#...._......#
+#.p.._.....1#
+#@..._......#
+#############"),
+
             new LevelDef("Locked Light", "A receiver opens the doors - one for the beam, one for you.", @"
 #############
 #...#0.....<#
@@ -119,6 +132,18 @@ namespace FirstLight
 #.X.G.CeC..0#
 #############"),
 
+            new LevelDef("Flash", "One flash is enough. The gate does not close again.", @"
+###########
+#........X#
+#####G###_#
+#>.......0#
+#.........#
+#........T#
+#.........#
+#.........#
+#@........#
+###########"),
+
             new LevelDef("The Lantern", "A lamp that burns only while you shine on it.", @"
 #############
 #>.........0#
@@ -130,6 +155,18 @@ namespace FirstLight
 ######H######
 #...........#
 #.....X.....#
+#############"),
+
+            new LevelDef("Crosslight", "No mirror can line up on that eye. The lamp can.", @"
+#############
+#>.........0#
+#...........#
+#X....Y....0#
+#...........#
+#....CCC....#
+#....CeC....#
+#....CCC....#
+#@..........#
 #############"),
 
             new LevelDef("The Gloom", "Only the cells the beam touches are safe. Walk the light.", @"
@@ -203,6 +240,19 @@ namespace FirstLight
 #.XD..0.....#
 #############"),
 
+            new LevelDef("Both Plates", "Two bridges, two plates, one beam - so it has to be split.", @"
+##############
+#......._.._.#
+#.....0._.p_.#
+#......._.._.#
+#......._.._.#
+#>....P.b.._.#
+#......._..c.#
+#......._.._.#
+#.....2._.q_X#
+#@......_.._.#
+##############"),
+
             new LevelDef("Twin Eyes", "Two eyes, one beam. Split it and take both.", @"
 ###############
 #..CCC........#
@@ -228,6 +278,19 @@ namespace FirstLight
 ##.#######K#.##
 ##0....F_X._0##
 ###############"),
+
+            new LevelDef("Pinch", "The lamp gives you the second beam the lens is waiting for.", @"
+############
+#........#.#
+#....0..0#.#
+#........K.#
+#........#.#
+#>...Y..F_X#
+#........#.#
+#........#.#
+#........#.#
+#@.......#.#
+############"),
 
             new LevelDef("Warded", "One beam is not enough. This eye needs two at once.", @"
 ######v######
@@ -282,6 +345,18 @@ namespace FirstLight
 #._...........#
 #._...........#
 ###############"),
+
+            new LevelDef("Shutter", "Aiming here shuts the way through. Aim somewhere else.", @"
+###########
+#....#...q#
+#....#....#
+#....#....#
+#>..._...1#
+#....m....#
+#....#....#
+#X..._...0#
+#....#...@#
+###########"),
 
             new LevelDef("Nightbloom", "This path closes in the light. Turn the beam away to cross.", @"
 ###############
