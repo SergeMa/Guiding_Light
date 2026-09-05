@@ -378,6 +378,35 @@ namespace FirstLight
             return Mathf.Clamp01(Mathf.Max(v, ambient));
         }
 
+        /// <summary>
+        /// Whether a device currently reads as "on". This is the single source of truth
+        /// for how a piece is drawn, and it must agree with what the simulation lets the
+        /// player walk through - a door that is open but drawn shut is unplayable.
+        /// Every door kind falls through to IsOpen, so a new one cannot be forgotten here.
+        /// </summary>
+        public bool ActiveFor(char kind, Vector2Int cell)
+        {
+            switch (kind)
+            {
+                case Tile.PlateA: return State.CircuitA;
+                case Tile.PlateB: return State.CircuitB;
+                case Tile.ReceiverA: return State.ReceiverA;
+                case Tile.ReceiverB: return State.ReceiverB;
+                case Tile.Switch: return State.Switched;
+                case Tile.BridgeA: return State.CircuitA;
+                case Tile.BridgeB: return State.CircuitB;
+                case Tile.Focus: return State.Focused;
+                case Tile.NightA: return !State.CircuitA;
+                case Tile.NightB: return !State.CircuitB;
+                case Tile.Lantern: return State.Lit.Contains(cell);
+                case Tile.Exit:
+                    return State.Lit.Contains(cell) &&
+                           State.ClearedEyes.Count >= Level.Eyes.Count;
+                default:
+                    return Tile.IsDoor(kind) && State.IsOpen(kind);
+            }
+        }
+
         void RenderPieces(float time)
         {
             float pulse = 0.5f + 0.5f * Mathf.Sin(time * 3f);
@@ -385,31 +414,7 @@ namespace FirstLight
             foreach (var p in pieces)
             {
                 float amount = p.IgnoreCellLight ? 0f : LightAt(p.Cell);
-                bool active = false;
-
-                switch (p.Kind)
-                {
-                    case Tile.PlateA: active = State.CircuitA; break;
-                    case Tile.PlateB: active = State.CircuitB; break;
-                    case Tile.ReceiverA: active = State.ReceiverA; break;
-                    case Tile.ReceiverB: active = State.ReceiverB; break;
-                    case Tile.Switch: active = State.Switched; break;
-                    case Tile.BridgeA: active = State.CircuitA; break;
-                    case Tile.BridgeB: active = State.CircuitB; break;
-                    case Tile.Focus: active = State.Focused; break;
-                    case Tile.NightA: active = !State.CircuitA; break;
-                    case Tile.NightB: active = !State.CircuitB; break;
-                    case Tile.Lantern: active = State.Lit.Contains(p.Cell); break;
-                    case Tile.HeldA:
-                    case Tile.HeldB:
-                    case Tile.DoorA:
-                    case Tile.DoorB:
-                    case Tile.Gate: active = State.IsOpen(p.Kind); break;
-                    case Tile.Exit:
-                        active = State.Lit.Contains(p.Cell) &&
-                                 State.ClearedEyes.Count >= Level.Eyes.Count;
-                        break;
-                }
+                bool active = ActiveFor(p.Kind, p.Cell);
 
                 if (p.IgnoreCellLight)
                 {
