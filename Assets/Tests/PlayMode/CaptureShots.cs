@@ -21,7 +21,7 @@ public class CaptureShots
         var game = host.AddComponent<GameManager>();
         yield return null;
 
-        int[] want = { 10, 11, 12, 17 };
+        int[] want = { 29, 30, 31 };
         foreach (int i in want)
         {
             game.BeginAt(i);

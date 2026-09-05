@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace FirstLight
 {
     /// <summary>
-    /// The thirty levels, as ASCII maps. Every map here has been checked with an
+    /// The thirty-two levels, as ASCII maps. Every map here has been checked with an
     /// exhaustive solver (player position x mirror orientations x cleared eyes), so
     /// each one is guaranteed reachable-and-solvable from its starting state.
     ///
@@ -401,20 +401,60 @@ namespace FirstLight
 #@..gggggggg..#.#
 #################"),
 
-            new LevelDef("Return to the Sky", "Everything at once. Send the light back up.", @"
-#################
-#>@............0#
-####_#..........#
-#.X.bD..0.......#
-#..._#..........#
-######..........#
-#.......R.......#
-#...............#
-#...............#
-#.......P......0#
-#...............#
-#.......p.......#
-#################"),
+            // ---- The finale is one tower, climbed in three. Each room begins in the
+            // state the last one ended in: same mirrors at the angles you left them,
+            // standing on the exit you just reached, with more of the shaft revealed.
+
+            new LevelDef("The Tower", "The way up is the room you are standing in. Clear it, then climb.", @"
+###############
+###############
+###############
+###############
+##.############
+###############
+###############
+###############
+###############
+############X##
+#@............#
+#>..........0.#
+#.............#
+#...CeC.....2.#
+###############"),
+
+            new LevelDef("The Long Climb", "You start on the step you just reached. The tower opens above it.", @"
+###############
+###############
+###############
+###############
+##.############
+#...1.......0.#
+#.............#
+#.............#
+#.1.Y........X#
+############@##
+#.............#
+#>..........1.#
+#.............#
+#...........1.#
+###############"),
+
+            new LevelDef("Return to the Sky", "Everything you set is still set. Send the light out of the top.", @"
+###############
+#.0.........X.#
+#.............#
+#.............#
+##.############
+#...3.......2.#
+#.............#
+#.............#
+#.1.Y........@#
+############.##
+#.............#
+#>..........1.#
+#.............#
+#...........1.#
+###############"),
         };
     }
 }

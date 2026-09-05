@@ -113,10 +113,21 @@ but it means such a layout is a dead end rather than a clever trick.
 
 ## Levels
 
-Thirty levels in six phases — tutorial (1–4), combine (5–12), walk the light (13–16),
-escalate (17–24), converge (25–29), finale (30).
+Thirty-two levels in six phases — tutorial (1–4), combine (5–12), walk the light (13–16),
+escalate (17–24), converge (25–29), finale (30–32).
 
-Pacing note for a jam: the whole set is 20–30 minutes, and a judge will usually give a
+The finale is not three rooms but **one tower climbed in three goes**. Each of those levels
+begins in the state the one before it ended in: the same mirrors at the angles you left
+them, the eye you put out still out, and you standing on the exit you just reached — with
+another floor of the shaft opened above you. Nothing resets, so the last stretch reads as a
+single ascent rather than three puzzles.
+
+That promise lives in the seam between maps and would break silently if one were edited, so
+`FinaleChainTests` holds it: each room must start on the previous room's exit, carried-over
+mirrors must keep their positions, the tower may only ever open up and never wall a cell
+back in, and the cleared eye must not come back.
+
+Pacing note for a jam: the whole set is 10–15 minutes, and a judge will usually give a
 game 5–10. Most levels are one or two mirror turns and under half a minute; the long ones
 are deliberately late (25, 27, 29). `[` and `]` jump between levels, which is the fastest
 way to show someone a specific mechanic.
@@ -135,7 +146,7 @@ visuals and the collision all come from that one string.
 ```
 Assets/Scripts/FirstLight/
   LightSim.cs       tiles, one-sided mirror maths, level parsing, the beam solver
-  LevelLibrary.cs   the thirty maps
+  LevelLibrary.cs   the thirty-two maps
   LevelView.cs      builds a level's visuals and keeps them in sync with the light
   GameManager.cs    camera, player, level flow, HUD
   Art.cs            every sprite, generated at runtime
@@ -188,7 +199,7 @@ The design document left five questions open. These are the answers the build as
 them are cheap to change.
 
 1. **Rotate in place only.** Mirrors turn where they stand; nothing is carried. Rotation alone
-   carries all thirty levels, and carryable mirrors were listed as the first thing to cut.
+   carries all thirty-two levels, and carryable mirrors were listed as the first thing to cut.
 2. **The clouds are hazardous.** Walking into living darkness sends you back to where the
    level started — a cost in time, with no health bar or fail state to build around.
 3. **Failure is local.** A death moves you, not the room: mirrors, charged receivers and
