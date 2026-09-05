@@ -280,6 +280,9 @@ namespace FirstLight
         {
             char ch = At(c);
             if (Tile.IsCloudish(ch)) return !InLiveCloud(c, st);
+            // A lamp is a stone you can stand on only while it burns - which makes it
+            // the one place a light corridor can turn a corner inside a gloom.
+            if (ch == Tile.Lantern) return st.Lit.Contains(c);
             if (ch == Tile.BridgeA) return st.CircuitA;
             if (ch == Tile.BridgeB) return st.CircuitB;
             // a nightbloom is the inverse of a held door: light closes it

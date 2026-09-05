@@ -25,7 +25,7 @@ public class LevelSolvabilityTests
     public void EveryLevelIsSolvable()
     {
         var levels = LevelLibrary.Build();
-        Assert.AreEqual(20, levels.Count, "expected twenty levels");
+        Assert.AreEqual(24, levels.Count, "expected twenty-four levels");
 
         for (int i = 0; i < levels.Count; i++)
         {

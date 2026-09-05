@@ -66,6 +66,30 @@ public class DarknessTests
                       "with its eye out the whole gloom is safe, lit or not");
     }
 
+    [Test]
+    public void ALanternCanBeStoodOnOnlyWhileItBurns()
+    {
+        // the beam runs east along the middle row straight into the lamp
+        var def = new LevelDef("lamp", "", @"
+#######
+#ggggg#
+#>ggYg#
+#ggggg#
+#######");
+        var lamp = new Vector2Int(4, 2);
+        Assert.AreEqual(Tile.Lantern, def.At(lamp));
+
+        var lit = def.Resolve(NoMirrors, null, false);
+        Assert.IsTrue(lit.Lit.Contains(lamp), "the beam should reach the lamp");
+        Assert.IsTrue(def.Walkable(lamp, lit), "a burning lamp is a stone you can stand on");
+
+        // the lamp is what lets a corridor turn: its side rays are lit too
+        Assert.IsTrue(def.Walkable(new Vector2Int(4, 3), lit),
+                      "the lamp throws light sideways, so the gloom above it holds you");
+        Assert.IsTrue(def.Walkable(new Vector2Int(4, 1), lit),
+                      "and below it");
+    }
+
     // A prism splits the beam; each half is walked around to the middle of the bottom
     // row, so the target is struck from the east and the west at the same moment.
     const string TwoBeams = @"

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace FirstLight
 {
     /// <summary>
-    /// The twenty levels, as ASCII maps. Every map here has been checked with an
+    /// The twenty-four levels, as ASCII maps. Every map here has been checked with an
     /// exhaustive solver (player position x mirror orientations x cleared eyes), so
     /// each one is guaranteed reachable-and-solvable from its starting state.
     ///
@@ -145,6 +145,51 @@ namespace FirstLight
 #@.ggggggggg..#
 ###############"),
 
+            new LevelDef("Lead the Light", "The corridor turns where you turn it. Round the corners on the landings.", @"
+##############
+#..gggggggggg#
+#..gggggggggg#
+#>.gggggggg0g#
+#..ggggggg.gg#
+#..gggggggggg#
+#..gggggggggg#
+#..gggggggggg#
+#..ggggggg.gg#
+#X.gggggggg2g#
+#..gggggggggg#
+#@.gggggggggg#
+##############"),
+
+            new LevelDef("Lantern Chain", "Each lamp is a crossroads you stand on. Light makes more floor.", @"
+###############
+#..ggggggggggg#
+#v.ggggggggggg#
+#..ggggggggggg#
+#..ggggggggggg#
+#..ggggggggggg#
+#..ggYgggYgggX#
+#..ggggggggggg#
+#..ggggggggggg#
+#..ggggggggggg#
+#2.ggYgggggggg#
+#.@ggggggggggg#
+###############"),
+
+            new LevelDef("Floor and Door", "The lamp under your feet is what holds the way ahead open.", @"
+###############
+#..ggggggggggg#
+#v.ggggggggggg#
+#..gg0gggpgggg#
+#..ggggggggggg#
+#..ggggggggggg#
+#2.ggYggHggggX#
+#..ggggggggggg#
+#..ggggggggggg#
+#..ggggggggggg#
+#..ggggggggggg#
+#.@ggggggggggg#
+###############"),
+
             new LevelDef("Split", "A prism divides the beam: one half unlocks, one half arrives.", @"
 #############
 #.R...0.....#
@@ -196,6 +241,21 @@ namespace FirstLight
 #XCwC......0#
 #.CCC.......#
 #############"),
+
+            new LevelDef("Split Corridor", "Two corridors at once: one to walk, one to carry the light.", @"
+###############
+#...ggggggggg.#
+#...ggggggggg.#
+#.0.ggggggggg.#
+#...ggggggggg.#
+#...ggggggggg.#
+#>P.ggggggggg.#
+#...ggggggggg.#
+#...ggggggggg.#
+#.2.gggg_gggX.#
+#...ggggggggg.#
+#@..ggggggggg.#
+###############"),
 
             new LevelDef("The Roaming Dark", "This eye wanders. Flood the whole cloud and let it walk in.", @"
 ###############

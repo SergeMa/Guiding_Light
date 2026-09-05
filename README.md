@@ -41,14 +41,16 @@ somewhere else. Most puzzles are built on the tension between the two.
 | Plate → nightbloom | held, inverted | a path that exists only while the plate is **dark** — light closes it |
 | Receiver → door | latched | light it once and the door stays open, for the beam and for you |
 | Switch → gate | latched | one flash is enough, and the gate never closes |
-| Lantern | held | catches the beam and burns, casting light in all four directions; out the instant the beam leaves |
+| Lantern | held | catches the beam and burns, casting light in all four directions; you can stand on it while it burns, and it goes out the instant the beam leaves |
 | Focus lens → door | held | charged only while **two** beams cross it at once; lose one and the door shuts |
 | Prism | — | splits a beam into both perpendiculars |
 | Chasm | — | light crosses it; you do not |
 
 A lantern is the one device that *makes* light rather than consuming it, so it turns a
 single beam into a cross and reaches places no mirror chain can. It is still held: stop
-feeding it and the room goes dark again.
+feeding it and the room goes dark again — including under your own feet, because a burning
+lamp is a stone you can stand on. That is what lets a corridor of light turn a corner
+inside a gloom, where the beam is the only floor.
 
 ### The darkness
 
@@ -62,6 +64,12 @@ feeding it and the room goes dark again.
 A gloom with an eye in it lifts for good once that eye is out. A gloom with **no** eye is
 simply permanent dark — legitimate, because the beam is always a way through. A *cloud*
 with no eye would wall a level off forever, so the tests reject it.
+
+Crossing a gloom has one geometric catch worth knowing when you build levels. Where a
+corridor of light turns, the corner is the mirror itself, and the lit cells either side of
+it are diagonal to each other — so the turn is not walkable. Two things fix it: a plain
+floor landing tucked into the corner, or a lantern, which *is* the corner and is walkable
+while it burns.
 
 Wards and lenses share one idea deliberately: two beams at once. It shows up first as a
 lock (level 13) and then as an enemy (level 14), so combat and puzzle stay the same verb.
@@ -87,8 +95,12 @@ but it means such a layout is a dead end rather than a clever trick.
 
 ## Levels
 
-Twenty levels in five phases — tutorial (1–3), combine (4–9), escalate (10–15),
-converge (16–19), finale (20).
+Twenty-four levels in six phases — tutorial (1–3), combine (4–9), walk the light (10–13),
+escalate (14–19), converge (20–23), finale (24).
+
+*Walk the light* is a four-room act on one idea: the darkness is not an obstacle to clear
+but a floor to lay. The beam stops being a switch and becomes a road — one you lead, one
+that turns at lamps you stand on, one that holds a door open from inside itself.
 Each one introduces a single new idea and recombines it with what came before.
 
 Levels are ASCII maps in [`LevelLibrary.cs`](Assets/Scripts/FirstLight/LevelLibrary.cs); the
@@ -100,7 +112,7 @@ visuals and the collision all come from that one string.
 ```
 Assets/Scripts/FirstLight/
   LightSim.cs       tiles, one-sided mirror maths, level parsing, the beam solver
-  LevelLibrary.cs   the twenty maps
+  LevelLibrary.cs   the twenty-four maps
   LevelView.cs      builds a level's visuals and keeps them in sync with the light
   GameManager.cs    camera, player, level flow, HUD
   Art.cs            every sprite, generated at runtime
@@ -129,7 +141,7 @@ nightbloom is walkable only in the dark, and a lantern lights cells no beam coul
 goes out when the beam is turned away.
 
 `DarknessTests` pins the harder darkness on a fixture that can deliver either one beam or
-two on demand: a gloom cell is walkable only where the beam falls, an eyeless gloom stays
+two on demand — plus the rule that a lamp holds you only while it burns: a gloom cell is walkable only where the beam falls, an eyeless gloom stays
 deadly for good while a struck eye makes the whole region safe, a ward survives one beam and
 breaks under two where a plain eye dies to one, and a focus lens holds its door only while
 both beams are crossing.
@@ -145,7 +157,7 @@ The design document left five questions open. These are the answers the build as
 them are cheap to change.
 
 1. **Rotate in place only.** Mirrors turn where they stand; nothing is carried. Rotation alone
-   carries all twenty levels, and carryable mirrors were listed as the first thing to cut.
+   carries all twenty-four levels, and carryable mirrors were listed as the first thing to cut.
 2. **The clouds are hazardous.** Walking into living darkness sends you back to where the
    level started — a cost in time, with no health bar or fail state to build around.
 3. **Failure is local.** A death moves you, not the room: mirrors, charged receivers and
