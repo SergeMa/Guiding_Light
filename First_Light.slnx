@@ -1,2 +1,5 @@
 ﻿<Solution>
+  <Project Path="FirstLight.csproj" />
+  <Project Path="FirstLight.PlayTests.csproj" />
+  <Project Path="FirstLight.Tests.csproj" />
 </Solution>
