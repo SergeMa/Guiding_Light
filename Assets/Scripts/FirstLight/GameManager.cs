@@ -16,10 +16,14 @@ namespace FirstLight
         [Tooltip("Level to start on. Useful while building levels.")]
         public int startLevel = 0;
 
+        [Tooltip("On-screen controls. Auto means phones and tablets only - desktop is untouched.")]
+        public TouchControlsMode touchControls = TouchControlsMode.Auto;
+
         List<LevelDef> levels;
         LevelView view;
         Camera cam;
         Sfx sfx;
+        readonly TouchControls touch = new();
 
         Phase phase = Phase.Title;
         int index;
@@ -55,6 +59,9 @@ namespace FirstLight
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = Palette.Background;
             cam.transform.position = new Vector3(0, 0, -10);
+
+            touch.Mode = touchControls;
+            if (touch.Active) Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
             levels = LevelLibrary.Build();
             sfx = Sfx.Create(transform);
@@ -125,10 +132,18 @@ namespace FirstLight
         void FitCamera(LevelDef def)
         {
             float aspect = Mathf.Max(cam.aspect, 0.4f);
-            float halfH = def.Height * 0.5f + 1.2f;
+
+            // The pad covers the bottom of the screen, so the level has to fit in what
+            // is left above it, and the camera drops by half that band to re-centre.
+            float reserved = Mathf.Clamp(touch.ReservedBottom, 0f, 0.6f);
+            float usable = 1f - reserved;
+
+            float halfH = (def.Height * 0.5f + 1.2f) / usable;
             float halfW = (def.Width * 0.5f + 1.2f) / aspect;
             cam.orthographicSize = Mathf.Max(halfH, halfW);
-            cam.transform.position = new Vector3((def.Width - 1) * 0.5f, (def.Height - 1) * 0.5f, -10);
+
+            float centreY = (def.Height - 1) * 0.5f - reserved * cam.orthographicSize;
+            cam.transform.position = new Vector3((def.Width - 1) * 0.5f, centreY, -10);
         }
 
         void SnapshotSignals()
@@ -160,17 +175,19 @@ namespace FirstLight
             overlay.color = new Color(overlayColor.r, overlayColor.g, overlayColor.b, overlayAmount);
 
             var kb = Keyboard.current;
+            var pad = touch.Active ? touch.Sample() : default;
 
             if (phase == Phase.Title)
             {
-                if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame))
+                if ((kb != null && (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame))
+                    || pad.AnyTap)
                     StartLevel(index);
                 return;
             }
 
             if (phase == Phase.Ending)
             {
-                if (kb != null && kb.rKey.wasPressedThisFrame)
+                if ((kb != null && kb.rKey.wasPressedThisFrame) || pad.AnyTap)
                 {
                     index = 0;
                     phase = Phase.Title;
@@ -180,10 +197,10 @@ namespace FirstLight
                 return;
             }
 
-            if (phase == Phase.Playing && kb != null)
+            if (phase == Phase.Playing)
             {
-                HandleMovement(kb, dt);
-                HandleActions(kb);
+                HandleMovement(kb, pad, dt);
+                HandleActions(kb, pad);
             }
 
             if (phase == Phase.Clearing)
@@ -232,13 +249,18 @@ namespace FirstLight
             StartLevel(index + 1);
         }
 
-        void HandleMovement(Keyboard kb, float dt)
+        void HandleMovement(Keyboard kb, TouchControls.State pad, float dt)
         {
             var dir = Vector2Int.zero;
-            if (kb.wKey.isPressed || kb.upArrowKey.isPressed) dir = Vector2Int.up;
-            else if (kb.sKey.isPressed || kb.downArrowKey.isPressed) dir = Vector2Int.down;
-            else if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) dir = Vector2Int.left;
-            else if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) dir = Vector2Int.right;
+            if (kb != null)
+            {
+                if (kb.wKey.isPressed || kb.upArrowKey.isPressed) dir = Vector2Int.up;
+                else if (kb.sKey.isPressed || kb.downArrowKey.isPressed) dir = Vector2Int.down;
+                else if (kb.aKey.isPressed || kb.leftArrowKey.isPressed) dir = Vector2Int.left;
+                else if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) dir = Vector2Int.right;
+            }
+            // a held direction on the pad repeats exactly like a held key
+            if (dir == Vector2Int.zero) dir = pad.Move;
 
             if (dir == Vector2Int.zero)
             {
@@ -292,10 +314,16 @@ namespace FirstLight
             sfx.Deny();
         }
 
-        void HandleActions(Keyboard kb)
+        void HandleActions(Keyboard kb, TouchControls.State pad)
         {
-            bool ccw = kb.eKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame;
-            bool cw = kb.qKey.wasPressedThisFrame;
+            bool ccw = pad.TurnCcw, cw = pad.TurnCw, restart = pad.Restart, toTitle = false;
+            if (kb != null)
+            {
+                ccw |= kb.eKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame;
+                cw |= kb.qKey.wasPressedThisFrame;
+                restart |= kb.rKey.wasPressedThisFrame;
+                toTitle = kb.escapeKey.wasPressedThisFrame;
+            }
 
             if (ccw || cw)
             {
@@ -309,13 +337,14 @@ namespace FirstLight
                 else sfx.Deny();
             }
 
-            if (kb.rKey.wasPressedThisFrame) StartLevel(index);
-            if (kb.escapeKey.wasPressedThisFrame)
+            if (restart) StartLevel(index);
+            if (toTitle)
             {
                 phase = Phase.Title;
                 if (view != null) Destroy(view.gameObject);
                 player.gameObject.SetActive(false);
             }
+            if (kb == null) return;
             if (kb.leftBracketKey.wasPressedThisFrame && index > 0) StartLevel(index - 1);
             if (kb.rightBracketKey.wasPressedThisFrame && index < levels.Count - 1) StartLevel(index + 1);
         }
@@ -351,12 +380,18 @@ namespace FirstLight
                           "from the sky.\nYou cannot carry the light - only bend it.",
                           Style(Mathf.RoundToInt(18 * s), faint));
                 GUI.Label(new Rect(w * 0.2f, h * 0.58f, w * 0.6f, h * 0.16f),
-                          "WASD / arrows  -  move\n" +
-                          "E or Space  -  turn the nearest mirror\nQ  -  turn it back\n" +
-                          "R  -  restart level     [ ]  -  change level",
+                          touch.Active
+                              ? "the cross  -  move\n" +
+                                "the two round buttons  -  turn the nearest mirror\n" +
+                                "the ring, top right  -  restart the level"
+                              : "WASD / arrows  -  move\n" +
+                                "E or Space  -  turn the nearest mirror\nQ  -  turn it back\n" +
+                                "R  -  restart level     [ ]  -  change level",
                           Style(Mathf.RoundToInt(16 * s), faint));
-                GUI.Label(new Rect(0, h * 0.80f, w, h * 0.08f), "press SPACE to begin",
+                GUI.Label(new Rect(0, h * 0.80f, w, h * 0.08f),
+                          touch.Active ? "tap to begin" : "press SPACE to begin",
                           Style(Mathf.RoundToInt(20 * s), warm));
+                touch.Draw();
                 return;
             }
 
@@ -368,7 +403,8 @@ namespace FirstLight
                           "The light you bent all the way up has found the sky again.\n" +
                           "Somewhere below, a world sees its first morning.",
                           Style(Mathf.RoundToInt(18 * s), faint));
-                GUI.Label(new Rect(0, h * 0.72f, w, h * 0.08f), "press R to begin again",
+                GUI.Label(new Rect(0, h * 0.72f, w, h * 0.08f),
+                          touch.Active ? "tap to begin again" : "press R to begin again",
                           Style(Mathf.RoundToInt(18 * s), faint));
                 return;
             }
@@ -380,19 +416,26 @@ namespace FirstLight
             GUI.Label(new Rect(w * 0.04f, h * 0.03f + 26 * s, w * 0.6f, 30 * s), def.Idea,
                       Style(Mathf.RoundToInt(14 * s), faint, TextAnchor.UpperLeft));
 
-            string hint = view.MirrorNextTo(playerCell) >= 0
-                ? "E / Q  turn the mirror"
-                : "walk up to a mirror to turn it";
-            GUI.Label(new Rect(w * 0.04f, h - 34 * s, w * 0.92f, 30 * s), hint,
+            bool byMirror = view.MirrorNextTo(playerCell) >= 0;
+            string hint = touch.Active
+                ? (byMirror ? "the round buttons turn this mirror"
+                            : "walk up to a mirror to turn it")
+                : (byMirror ? "E / Q  turn the mirror"
+                            : "walk up to a mirror to turn it");
+            // keep the two hint lines clear of the pad
+            float hintY = h * (1f - touch.ReservedBottom) - 34 * s;
+            GUI.Label(new Rect(w * 0.04f, hintY, w * 0.92f, 30 * s), hint,
                       Style(Mathf.RoundToInt(14 * s), faint, TextAnchor.LowerLeft));
 
             var st = view.State;
             string status = st.ClearedEyes.Count < def.Eyes.Count
                 ? $"eyes remaining: {def.Eyes.Count - st.ClearedEyes.Count}"
                 : (def.Eyes.Count > 0 ? "the dark is lifted" : "");
-            GUI.Label(new Rect(w * 0.04f, h - 34 * s, w * 0.92f, 30 * s), status,
+            GUI.Label(new Rect(w * 0.04f, hintY, w * 0.92f, 30 * s), status,
                       Style(Mathf.RoundToInt(14 * s), new Color(1f, 0.45f, 0.45f, 0.9f),
                             TextAnchor.LowerRight));
+
+            touch.Draw();
         }
     }
 }

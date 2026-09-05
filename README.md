@@ -22,6 +22,21 @@ else (camera setup, sprites, levels, HUD, sound) is generated at runtime.
 | `[` `]` | previous / next level |
 | `Esc` | back to the title |
 
+On Android and iOS an on-screen pad appears instead: a direction cross on the left,
+two buttons on the right that turn the nearest mirror either way, and a restart ring
+in the corner. Tap anywhere to start or to play again.
+
+It switches itself on by platform (`GameManager.touchControls`, default `Auto`), so a
+desktop build behaves exactly as it always did — the pad reserves no screen, reads no
+pointers and draws nothing. `Always` forces it on if you want to try it in the editor
+with the mouse standing in for a finger.
+
+Two details worth knowing if you touch that code. It hit-tests the Input System's
+touches itself rather than using IMGUI buttons, which keeps it independent of whether
+IMGUI receives pointer events under the new input backend, and means one thumb can
+hold a direction while the other turns a mirror. And the camera pulls back and drops
+by half the pad's band, so no level is ever played under a thumb.
+
 ## Mechanics
 
 **Mirrors are one-sided.** A mirror is a 45° plate with a bright face and a dull back. It has
@@ -148,6 +163,14 @@ both beams are crossing.
 
 `RuntimeSmokeTests` boots the actual game object and runs every level for a few frames, so the
 whole build-sprites-and-render path is exercised too.
+
+`TouchControlsTests` and `MobileCameraTests` cover the on-screen pad. Layout and
+hit-testing are pure functions of the screen size, so they are checked at several phone
+and tablet resolutions with no device attached: buttons stay on screen, never overlap,
+stay big enough to hit, a held direction keeps reading while a turn fires once per press,
+and two thumbs register at once. The pair that matters most assert the negative — that on
+desktop the pad is inert even if something hands it a pointer, and that the desktop camera
+framing still matches the original rule exactly.
 
 To regenerate screenshots, set `FL_SHOT_DIR` and run the PlayMode test filter `CaptureShots`.
 
