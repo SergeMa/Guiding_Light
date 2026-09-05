@@ -149,6 +149,10 @@ namespace FirstLight
     public class LevelDef
     {
         public readonly string Name;
+        /// <summary>
+        /// A note to whoever edits the maps, saying what the room is for. Deliberately
+        /// never shown in game - working the room out is the game.
+        /// </summary>
         public readonly string Idea;
         public readonly int Width, Height;
         readonly char[,] grid;              // [x, y] with y increasing upward

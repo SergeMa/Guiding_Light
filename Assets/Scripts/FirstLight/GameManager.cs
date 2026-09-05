@@ -424,9 +424,6 @@ namespace FirstLight
             GUI.Label(new Rect(w * 0.04f, h * 0.03f, w * 0.6f, 30 * s),
                       $"{index + 1}/{levels.Count}   {def.Name}",
                       Style(Mathf.RoundToInt(20 * s), warm, TextAnchor.UpperLeft, FontStyle.Bold));
-            GUI.Label(new Rect(w * 0.04f, h * 0.03f + 26 * s, w * 0.6f, 30 * s), def.Idea,
-                      Style(Mathf.RoundToInt(14 * s), faint, TextAnchor.UpperLeft));
-
             bool byMirror = view.MirrorNextTo(playerCell) >= 0;
             string hint = touch.Active
                 ? (byMirror ? "the round buttons turn this mirror"
