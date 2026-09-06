@@ -479,8 +479,10 @@ namespace FirstLight
                 {
                     int orient = Orients[p.MirrorIndex];
                     var n = Mirror.Normal(orient);
-                    // point the bright face along the mirror's normal
-                    float angle = Mathf.Atan2(n.y, n.x) * Mathf.Rad2Deg - 90f;
+                    // Turn the sprite so its own bright face lands on the mirror's normal.
+                    // The drawn plate faces up; a painted one says which way it faces.
+                    float face = skin.mirror != null ? skin.mirrorFaceDegrees : 90f;
+                    float angle = Mathf.Atan2(n.y, n.x) * Mathf.Rad2Deg - face;
                     var t = p.Sr.transform;
                     t.rotation = Quaternion.Lerp(t.rotation, Quaternion.Euler(0, 0, angle),
                                                  1f - Mathf.Exp(-18f * Time.deltaTime));

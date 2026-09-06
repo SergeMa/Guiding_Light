@@ -407,6 +407,7 @@ MonoBehaviour:
     - {fileID: -4188724102742562465, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
     - {fileID: -7635366936938300408, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
     entityFps: 7
+    mirrorFaceDegrees: 180
     mirror: {fileID: 5632821140356901969, guid: 7fa6bb09869133040b01ba70bcd30262, type: 3}
     eye: {fileID: -6981827254641702772, guid: 98a9a04caca40664b8d76dfe973d47da, type: 3}
   stageMusic:

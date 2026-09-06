@@ -19,6 +19,11 @@ namespace FirstLight
         [Tooltip("The mirror. Empty falls back to the drawn plate.")]
         public Sprite mirror;
 
+        [Tooltip("Which way the mirror's reflective face points in the sprite's own " +
+                 "artwork, in degrees: 0 right, 90 up, 180 left. The drawn plate faces up; " +
+                 "mirror.png faces left.")]
+        public float mirrorFaceDegrees = 180f;
+
         [Tooltip("The creature in the dark. Empty falls back to the red eye.")]
         public Sprite eye;
 
