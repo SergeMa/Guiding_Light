@@ -16,6 +16,22 @@ namespace FirstLight
         [Tooltip("Frames per second for the entity animation.")]
         public float entityFps = 7f;
 
+        [Tooltip("Tick if the artwork already faces right. The angel's train trails to " +
+                 "the right, so it reads as facing left, which is the default.")]
+        public bool entityFacesRight;
+
+        /// <summary>
+        /// Which way to scale the sprite on x so it faces where it is walking.
+        /// Kept as a function because a sign convention is the easiest thing to invert
+        /// by accident and the hardest to notice.
+        /// </summary>
+        public static float FacingSign(int walkingX, bool artFacesRight)
+        {
+            if (walkingX == 0) return 1f;
+            bool wantsRight = walkingX > 0;
+            return wantsRight == artFacesRight ? 1f : -1f;
+        }
+
         [Tooltip("The mirror. Empty falls back to the drawn plate.")]
         public Sprite mirror;
 

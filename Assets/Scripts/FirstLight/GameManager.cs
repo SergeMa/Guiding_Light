@@ -45,6 +45,8 @@ namespace FirstLight
         Color overlayColor = Color.black;
 
         Vector2Int heldDir;
+        int facing = 1;              // last horizontal direction walked
+        float facingVisual = 1f;     // scaled towards it, so the turn reads as a turn
         float repeatTimer;
         float clearTimer;
 
@@ -143,6 +145,8 @@ namespace FirstLight
             music.PlayFor(index, levels.Count);
 
             playerCell = def.Start;
+            facing = 1;
+            facingVisual = Skin.FacingSign(facing, skin.entityFacesRight);
             playerVisual = playerCell;
             player.position = playerVisual;
             player.gameObject.SetActive(true);
@@ -241,16 +245,20 @@ namespace FirstLight
             playerVisual = Vector2.Lerp(playerVisual, playerCell, 1f - Mathf.Exp(-22f * dt));
             player.position = playerVisual;
             float bob = 1f + 0.06f * Mathf.Sin(Time.time * 2.6f);
-            if (skin.HasEntity)
-            {
-                playerBody.sprite = skin.EntityFrame(Time.time);
-                playerBody.transform.localScale =
-                    Vector3.one * (Skin.ScaleToCells(playerBody.sprite, 1.25f) * bob);
-            }
-            else
-            {
-                playerBody.transform.localScale = Vector3.one * bob;
-            }
+            // turn to face the way it walks; sweeping the scale through zero rather
+            // than snapping makes it read as turning round instead of popping
+            float want = Skin.FacingSign(facing, skin.entityFacesRight);
+            // the drawn star is symmetric, so sweeping it through zero would only
+            // squash it for no visible turn
+            facingVisual = skin.HasEntity
+                ? Mathf.MoveTowards(facingVisual, want, dt / 0.11f)
+                : want;
+
+            float size = skin.HasEntity
+                ? Skin.ScaleToCells(skin.EntityFrame(Time.time), 1.25f) * bob
+                : bob;
+            if (skin.HasEntity) playerBody.sprite = skin.EntityFrame(Time.time);
+            playerBody.transform.localScale = new Vector3(size * facingVisual, size, 1f);
             playerGlow.color = new Color(Palette.PlayerGlow.r, Palette.PlayerGlow.g,
                                          Palette.PlayerGlow.b,
                                          Palette.PlayerGlow.a * (0.8f + 0.2f * bob));
@@ -336,6 +344,7 @@ namespace FirstLight
                 return;
             }
 
+            if (dir.x != 0) facing = dir.x;
             playerCell = target;
         }
 
