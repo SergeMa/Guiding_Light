@@ -350,3 +350,81 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1700000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1700000002}
+  - component: {fileID: 1700000003}
+  m_Layer: 0
+  m_Name: Game
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1700000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1700000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d77e490daed079ff05d59065f22408c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startLevel: 0
+  touchControls: 0
+  skin:
+    entityFrames:
+    - {fileID: 3427114271967980436, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 8158605244509288230, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 6184959299203262911, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 2495864320845663737, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 6480803066212409350, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 801598655983992016, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: -4188724102742562465, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: -7635366936938300408, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    entityFps: 7
+    mirrorFaceDegrees: 180
+    mirror: {fileID: 5632821140356901969, guid: 7fa6bb09869133040b01ba70bcd30262, type: 3}
+    eye: {fileID: -6981827254641702772, guid: 98a9a04caca40664b8d76dfe973d47da, type: 3}
+  stageMusic:
+  - {fileID: 8300000, guid: 705687bc62deb16468cad9fcf0ace933, type: 3}
+  - {fileID: 8300000, guid: 47b725bb5640bd740b6aa0c48ffa2a74, type: 3}
+  - {fileID: 8300000, guid: 0713d81cab72da04b959b76691e9c7bd, type: 3}
+  sounds:
+    mirrorTurn:
+    - {fileID: 8300000, guid: df68c87be73b68e73aba2359acf47f59, type: 3}
+    - {fileID: 8300000, guid: 263965a5119af8b81db652a6c1f66927, type: 3}
+    - {fileID: 8300000, guid: 8e5031819066939f35991f0152493e3f, type: 3}
+    deviceOn:
+    - {fileID: 8300000, guid: f5317e67734d09f27a9d4c4ee553aca4, type: 3}
+    deviceOff:
+    - {fileID: 8300000, guid: 2af109c715c79749a4b1f9b7f38852bb, type: 3}
+    enemyDown:
+    - {fileID: 8300000, guid: 5080565371056baff33b3806931f0051, type: 3}
+    - {fileID: 8300000, guid: 57dea3978919ca5415af846275d68a9c, type: 3}
+    pitchLow: 0.92
+    pitchHigh: 1.09
