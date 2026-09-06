@@ -4,8 +4,9 @@ using NUnit.Framework;
 using UnityEngine;
 
 /// <summary>
-/// The on-screen pad. The first and most important property is that it does not
-/// exist anywhere but a phone or tablet: on desktop it is inert and takes no room.
+/// The on-screen pad. The first and most important property is that it stays away
+/// until a finger actually touches the screen: on desktop it is inert, reads nothing
+/// and takes no room.
 /// The rest is layout and hit-testing, which are pure functions of the screen size
 /// and so can be checked here without a device.
 /// </summary>
@@ -16,13 +17,48 @@ public class TouchControlsTests
     static TouchControls Mobile() => new() { Mode = TouchControlsMode.Always };
 
     [Test]
-    public void AutoIsOffOnDesktopSoNothingChangesThere()
+    public void AutoIsOffUntilSomethingTouchesTheScreen()
     {
         var pad = new TouchControls();   // Auto
         Assert.IsFalse(pad.Active,
-            "Auto must stay off anywhere that is not Android or iOS - these tests run on desktop");
+            "with nothing touching the screen the pad must stay away - these tests run on desktop");
         Assert.AreEqual(0f, pad.ReservedBottomFor(W, H),
             "an inactive pad must not reserve any screen for itself");
+    }
+
+    [Test]
+    public void ATouchBringsThePadOutEvenWhereThePlatformIsNotAPhone()
+    {
+        // this is the browser-on-a-phone case: the platform only ever says WebGL,
+        // so the touch itself is the only thing that can tell us
+        var pad = new TouchControls();
+        Assert.IsFalse(pad.Active);
+
+        pad.Observe(touching: true, keyPressed: false);
+        Assert.IsTrue(pad.Active, "a finger on the screen has to summon the controls");
+        Assert.Greater(pad.ReservedBottomFor(W, H), 0f, "and they have to be given room");
+    }
+
+    [Test]
+    public void ReachingForTheKeyboardPutsThePadAway()
+    {
+        var pad = new TouchControls();
+        pad.Observe(touching: true, keyPressed: false);
+        Assert.IsTrue(pad.Active);
+
+        pad.Observe(touching: false, keyPressed: true);
+        Assert.IsFalse(pad.Active, "a laptop with a touchscreen is both, so let the keys win");
+
+        pad.Observe(touching: true, keyPressed: false);
+        Assert.IsTrue(pad.Active, "and touching again brings it back");
+    }
+
+    [Test]
+    public void KeysAloneNeverSummonIt()
+    {
+        var pad = new TouchControls();
+        for (int i = 0; i < 5; i++) pad.Observe(touching: false, keyPressed: true);
+        Assert.IsFalse(pad.Active, "typing on a desktop must not conjure a touch pad");
     }
 
     [Test]

@@ -29,7 +29,13 @@ in the corner. Tap anywhere to start or to play again.
 On mobile it also locks to landscape — both ways up, so the device can still be flipped —
 because the levels are wide and portrait would shrink them to nothing.
 
-It switches itself on by platform (`GameManager.touchControls`, default `Auto`), so a
+It appears wherever a touchscreen is actually used, not by platform. A build for a
+phone knows it is one; a build served *to* a phone through a browser does not, because
+there the platform only ever reports WebGL — so the pad also comes out the moment the
+screen is touched, and steps back out of the way if the player then reaches for the
+keyboard, which covers a laptop that is both.
+
+With nothing ever touching the screen (`GameManager.touchControls`, default `Auto`) a
 desktop build behaves exactly as it always did — the pad reserves no screen, reads no
 pointers and draws nothing. `Always` forces it on if you want to try it in the editor
 with the mouse standing in for a finger.

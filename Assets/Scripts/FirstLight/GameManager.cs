@@ -47,6 +47,7 @@ namespace FirstLight
         float overlayAmount;
         Color overlayColor = Color.black;
 
+        bool controlsShowing;
         Vector2Int heldDir;
         int facing = 1;              // last horizontal direction walked
         float facingVisual = 1f;     // scaled towards it, so the turn reads as a turn
@@ -161,6 +162,18 @@ namespace FirstLight
             SnapshotSignals();
         }
 
+        /// <summary>
+        /// The pad can appear part way through a level, the first time the screen is
+        /// touched. It takes a band of the screen with it, so the camera has to pull
+        /// back there and then or the bottom row ends up under a thumb.
+        /// </summary>
+        void RefitIfControlsAppeared()
+        {
+            if (touch.Active == controlsShowing) return;
+            controlsShowing = touch.Active;
+            if (view != null) FitCamera(view.Level);
+        }
+
         void FitCamera(LevelDef def)
         {
             float aspect = Mathf.Max(cam.aspect, 0.4f);
@@ -233,7 +246,8 @@ namespace FirstLight
             overlay.color = new Color(overlayColor.r, overlayColor.g, overlayColor.b, overlayAmount);
 
             var kb = Keyboard.current;
-            var pad = touch.Active ? touch.Sample() : default;
+            var pad = touch.Sample();
+            RefitIfControlsAppeared();
 
             if (phase == Phase.Title)
             {

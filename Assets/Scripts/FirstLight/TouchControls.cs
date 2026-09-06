@@ -6,7 +6,10 @@ namespace FirstLight
 {
     public enum TouchControlsMode
     {
-        /// <summary>On phones and tablets only. Desktop behaves exactly as before.</summary>
+        /// <summary>
+        /// Wherever there is a touchscreen being used. Desktop behaves exactly as
+        /// before: with nothing ever touching the screen the pad never appears.
+        /// </summary>
         Auto,
         Always,
         Never,
@@ -47,14 +50,44 @@ namespace FirstLight
         readonly HashSet<Button> before = new();
         readonly List<Vector2> pointers = new();
         bool hadPointers;
+        bool sawTouch;      // a finger has been on the screen
+        bool sawKeys;       // and a key has been pressed since
 
+        /// <summary>
+        /// A build for a phone knows it is one. A build served to a phone through a
+        /// browser does not - there the platform is only ever WebGL - so the pad also
+        /// appears the moment the screen is actually touched, and steps back out of
+        /// the way if the player then reaches for the keyboard. That covers a laptop
+        /// with a touchscreen, which is both.
+        /// </summary>
         public bool Active => Mode switch
         {
             TouchControlsMode.Always => true,
             TouchControlsMode.Never => false,
-            _ => Application.platform == RuntimePlatform.Android ||
-                 Application.platform == RuntimePlatform.IPhonePlayer,
+            _ => OnAPhone || (sawTouch && !sawKeys),
         };
+
+        static bool OnAPhone =>
+            Application.platform == RuntimePlatform.Android ||
+            Application.platform == RuntimePlatform.IPhonePlayer ||
+            Application.isMobilePlatform;
+
+        /// <summary>
+        /// Watches what the player is actually using. Separated out so a test can say
+        /// "a finger touched the screen" without one.
+        /// </summary>
+        public void Observe(bool touching, bool keyPressed)
+        {
+            if (touching)
+            {
+                sawTouch = true;
+                sawKeys = false;
+            }
+            else if (keyPressed)
+            {
+                sawKeys = true;
+            }
+        }
 
         public bool IsHeld(Button b) => held.Contains(b);
 
@@ -98,7 +131,27 @@ namespace FirstLight
 
         // ------------------------------------------------------------------- input
 
-        public State Sample() => Evaluate(GatherPointers(), Screen.width, Screen.height);
+        public State Sample()
+        {
+            var points = GatherPointers();
+
+            // observed before evaluating, so the very touch that summons the pad is
+            // also the tap that starts the game
+            Observe(TouchingNow(), Keyboard.current != null &&
+                                   Keyboard.current.anyKey.wasPressedThisFrame);
+
+            return Evaluate(points, Screen.width, Screen.height);
+        }
+
+        static bool TouchingNow()
+        {
+            var screen = Touchscreen.current;
+            if (screen == null) return false;
+            var touches = screen.touches;
+            for (int i = 0; i < touches.Count; i++)
+                if (touches[i].press.isPressed) return true;
+            return false;
+        }
 
         /// <summary>
         /// Turns a set of pressed pointer positions into a control state. Pure, so a
@@ -153,10 +206,12 @@ namespace FirstLight
                         pointers.Add(ToGui(touches[i].position.ReadValue()));
             }
 
-            // a mouse press stands in for a finger, so the pad can be tried out in
-            // the editor with Mode set to Always
+            // A mouse stands in for a finger only when the pad has been switched on
+            // deliberately, so that it can be tried out in the editor. On Auto a mouse
+            // click must never summon it - that is the whole of the desktop promise.
             var mouse = Mouse.current;
-            if (mouse != null && mouse.leftButton.isPressed)
+            if (Mode == TouchControlsMode.Always &&
+                mouse != null && mouse.leftButton.isPressed)
                 pointers.Add(ToGui(mouse.position.ReadValue()));
 
             return pointers;
