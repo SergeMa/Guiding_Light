@@ -12,16 +12,14 @@ namespace FirstLight
     {
         const float FadeSeconds = 1.6f;
 
-        // The world's ambient light already rises level by level; the music rises with
-        // it, so the last stretch is the loudest the game ever gets.
-        const float QuietVolume = 0.20f;
-        const float FullVolume = 0.44f;
+        // One level throughout. It used to climb with the ambient light, but a puzzle
+        // you sit on for a while should not get louder underneath you while you think.
+        const float Volume = 0.44f;
 
         AudioClip[] tracks;
         AudioSource front, back;
         int playing = -1;
         float blend = 1f;          // 1 = fully on the front source
-        float volume = QuietVolume;
 
         public static Music Create(Transform parent, AudioClip[] clips)
         {
@@ -51,20 +49,14 @@ namespace FirstLight
             return Mathf.Clamp(i, 0, tracks.Length - 1);
         }
 
-        /// <summary>How loud the music sits at a given point in the game.</summary>
-        public static float VolumeFor(int levelIndex, int levelCount)
-        {
-            if (levelCount <= 1) return FullVolume;
-            float through = Mathf.Clamp01(levelIndex / (float)(levelCount - 1));
-            return Mathf.Lerp(QuietVolume, FullVolume, through);
-        }
+        /// <summary>
+        /// How loud the music sits. Deliberately the same at every level - kept as a
+        /// function so that stays something a test can hold onto.
+        /// </summary>
+        public static float VolumeFor(int levelIndex, int levelCount) => Volume;
 
         public void PlayFor(int levelIndex, int levelCount)
         {
-            // set before the early return: the volume climbs every level, not only
-            // on the three levels where the track happens to change
-            volume = VolumeFor(levelIndex, levelCount);
-
             int want = TrackFor(levelIndex, levelCount);
             if (want < 0 || want == playing) return;
             var clip = tracks[want];
@@ -84,8 +76,8 @@ namespace FirstLight
             if (playing < 0) return;
 
             blend = Mathf.MoveTowards(blend, 1f, Time.unscaledDeltaTime / FadeSeconds);
-            front.volume = volume * blend;
-            back.volume = volume * (1f - blend);
+            front.volume = Volume * blend;
+            back.volume = Volume * (1f - blend);
             if (blend >= 1f && back.isPlaying) back.Stop();
         }
     }
