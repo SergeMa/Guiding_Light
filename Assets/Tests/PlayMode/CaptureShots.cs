@@ -26,7 +26,7 @@ public class CaptureShots
         var game = Object.FindAnyObjectByType<GameManager>();
         Assert.IsNotNull(game, "the scene should hold a GameManager");
 
-        int[] want = { 6, 12, 29 };
+        int[] want = { 6, 12, 14, 19, 31 };
         foreach (int i in want)
         {
             game.BeginAt(i);
@@ -46,7 +46,7 @@ public class CaptureShots
 
             // batchmode has no game view, so render the camera straight to a texture
             var cam = Camera.main;
-            var rt = new RenderTexture(1280, 800, 24, RenderTextureFormat.ARGB32);
+            var rt = new RenderTexture(2560, 1440, 24, RenderTextureFormat.ARGB32);
             var request = new UnityEngine.Rendering.RenderPipeline.StandardRequest { destination = rt };
             if (UnityEngine.Rendering.RenderPipeline.SupportsRenderRequest(cam, request))
                 UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(cam, request);
