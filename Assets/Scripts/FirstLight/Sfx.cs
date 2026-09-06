@@ -12,13 +12,16 @@ namespace FirstLight
         const int Rate = 44100;
 
         AudioSource source;
-        AudioClip turn, activate, strike, complete, deny, finale;
+        AudioClip turn, activate, strike, complete, deny, finale, deactivate;
+        SoundBank bank = new();
+        int lastTurn = -1, lastOn = -1, lastOff = -1, lastDown = -1;
 
-        public static Sfx Create(Transform parent)
+        public static Sfx Create(Transform parent, SoundBank bank = null)
         {
             var go = new GameObject("Sfx");
             go.transform.SetParent(parent, false);
             var sfx = go.AddComponent<Sfx>();
+            sfx.bank = bank ?? new SoundBank();
             sfx.source = go.AddComponent<AudioSource>();
             sfx.source.playOnAwake = false;
             sfx.turn = Tone("turn", 0.10f, 420f, 620f, 0.20f);
@@ -27,6 +30,7 @@ namespace FirstLight
             sfx.complete = Tone("complete", 0.55f, 523f, 1046f, 0.26f);
             sfx.deny = Tone("deny", 0.16f, 150f, 90f, 0.22f);
             sfx.finale = Tone("finale", 1.60f, 262f, 1046f, 0.30f);
+            sfx.deactivate = Tone("deactivate", 0.26f, 720f, 240f, 0.22f);
             return sfx;
         }
 
@@ -59,9 +63,20 @@ namespace FirstLight
             source.PlayOneShot(clip);
         }
 
-        public void Turn() => Play(turn, Random.Range(0.94f, 1.08f));
-        public void Activate() => Play(activate);
-        public void Strike() => Play(strike);
+        // Every cue is pitched a little differently each time, recorded or generated.
+        public void Turn() =>
+            Play(SoundBank.Pick(bank.mirrorTurn, ref lastTurn, turn), bank.RandomPitch());
+
+        public void Activate() =>
+            Play(SoundBank.Pick(bank.deviceOn, ref lastOn, activate), bank.RandomPitch());
+
+        /// <summary>The beam has left something, so it drops, shuts or goes out.</summary>
+        public void Deactivate() =>
+            Play(SoundBank.Pick(bank.deviceOff, ref lastOff, deactivate), bank.RandomPitch());
+
+        public void Strike() =>
+            Play(SoundBank.Pick(bank.enemyDown, ref lastDown, strike), bank.RandomPitch());
+
         public void Complete() => Play(complete);
         public void Deny() => Play(deny);
         public void Finale() => Play(finale);

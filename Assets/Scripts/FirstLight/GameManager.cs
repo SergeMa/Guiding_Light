@@ -25,6 +25,9 @@ namespace FirstLight
         [Tooltip("One track per stretch of the game, spread evenly over the levels.")]
         public AudioClip[] stageMusic;
 
+        [Tooltip("Recorded cues. Anything left empty falls back to the generated tone.")]
+        public SoundBank sounds = new();
+
         List<LevelDef> levels;
         LevelView view;
         Camera cam;
@@ -51,8 +54,8 @@ namespace FirstLight
         float clearTimer;
 
         // remembered so we can fire a cue the moment something changes
-        int lastCleared;
-        bool lastA, lastB, lastRA, lastRB, lastSwitched;
+        int lastCleared, lastLanterns;
+        bool lastA, lastB, lastRA, lastRB, lastSwitched, lastFocused;
 
         void Awake()
         {
@@ -84,7 +87,7 @@ namespace FirstLight
             }
 
             levels = LevelLibrary.Build();
-            sfx = Sfx.Create(transform);
+            sfx = Sfx.Create(transform, sounds);
             music = Music.Create(transform, stageMusic);
             BuildPlayer();
             BuildOverlay();
@@ -182,16 +185,42 @@ namespace FirstLight
             lastA = s.CircuitA; lastB = s.CircuitB;
             lastRA = s.ReceiverA; lastRB = s.ReceiverB;
             lastSwitched = s.Switched;
+            lastFocused = s.Focused;
+            lastLanterns = LitLanterns();
+        }
+
+        /// <summary>How many lamps are currently burning - they can go out too.</summary>
+        int LitLanterns()
+        {
+            int n = 0;
+            foreach (var c in view.State.Lit)
+                if (view.Level.At(c) == Tile.Lantern) n++;
+            return n;
         }
 
         void ReportSignals()
         {
             var s = view.State;
-            if (s.ClearedEyes.Count > lastCleared) sfx.Strike();
-            else if ((s.CircuitA && !lastA) || (s.CircuitB && !lastB) ||
-                     (s.ReceiverA && !lastRA) || (s.ReceiverB && !lastRB) ||
-                     (s.Switched && !lastSwitched))
-                sfx.Activate();
+            int lanterns = LitLanterns();
+
+            bool struck = s.ClearedEyes.Count > lastCleared;
+
+            bool lit = (s.CircuitA && !lastA) || (s.CircuitB && !lastB) ||
+                       (s.ReceiverA && !lastRA) || (s.ReceiverB && !lastRB) ||
+                       (s.Switched && !lastSwitched) || (s.Focused && !lastFocused) ||
+                       lanterns > lastLanterns;
+
+            // Held things can be lost, and losing them used to happen in silence -
+            // a bridge would fall behind you with nothing to hear.
+            bool lost = (!s.CircuitA && lastA) || (!s.CircuitB && lastB) ||
+                        (!s.Focused && lastFocused) || lanterns < lastLanterns;
+
+            if (struck) sfx.Strike();      // the loudest thing that can happen; it stands alone
+            else
+            {
+                if (lit) sfx.Activate();
+                if (lost) sfx.Deactivate();
+            }
             SnapshotSignals();
         }
 

@@ -36,6 +36,21 @@ public class SceneWiringTests
         Assert.IsNotNull(skin.eye, "the creature sprite did not resolve");
         Assert.IsTrue(skin.HasEntity);
 
+        var cues = game.sounds;
+        Assert.IsNotNull(cues, "the sound bank should be serialized on the scene object");
+        foreach (var (name, clips) in new[]
+                 {
+                     ("mirror turns", cues.mirrorTurn), ("device on", cues.deviceOn),
+                     ("device off", cues.deviceOff), ("enemy down", cues.enemyDown),
+                 })
+        {
+            Assert.IsTrue(SoundBank.Has(clips), $"the {name} cue resolved to nothing");
+            foreach (var c in clips)
+                Assert.IsNotNull(c, $"a {name} clip did not resolve - check its guid");
+        }
+        Assert.AreEqual(3, cues.mirrorTurn.Length, "expected three mirror takes");
+        Assert.AreEqual(2, cues.enemyDown.Length, "expected two enemy takes");
+
         Assert.IsNotNull(game.stageMusic, "no music array on the scene object");
         Assert.AreEqual(3, game.stageMusic.Length, "expected three stage tracks");
         for (int i = 0; i < game.stageMusic.Length; i++)
