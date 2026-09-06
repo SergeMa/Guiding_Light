@@ -19,17 +19,24 @@ namespace FirstLight
         [Tooltip("On-screen controls. Auto means phones and tablets only - desktop is untouched.")]
         public TouchControlsMode touchControls = TouchControlsMode.Auto;
 
+        [Tooltip("Hand-drawn art. Anything left empty falls back to the procedural sprite.")]
+        public Skin skin = new();
+
+        [Tooltip("One track per stretch of the game, spread evenly over the levels.")]
+        public AudioClip[] stageMusic;
+
         List<LevelDef> levels;
         LevelView view;
         Camera cam;
         Sfx sfx;
+        Music music;
         readonly TouchControls touch = new();
 
         Phase phase = Phase.Title;
         int index;
 
         Transform player;
-        SpriteRenderer playerGlow;
+        SpriteRenderer playerGlow, playerBody;
         Vector2Int playerCell;
         Vector2 playerVisual;
 
@@ -76,6 +83,7 @@ namespace FirstLight
 
             levels = LevelLibrary.Build();
             sfx = Sfx.Create(transform);
+            music = Music.Create(transform, stageMusic);
             BuildPlayer();
             BuildOverlay();
             index = Mathf.Clamp(startLevel, 0, levels.Count - 1);
@@ -86,10 +94,15 @@ namespace FirstLight
             var go = new GameObject("Entity");
             go.transform.SetParent(transform, false);
             player = go.transform;
-            var body = go.AddComponent<SpriteRenderer>();
-            body.sprite = Art.Star();
-            body.color = Palette.Player;
-            body.sortingOrder = 27;
+
+            // the body is a child of its own: fitting a hand-drawn sprite to the cell
+            // must not drag the aura's size along with it
+            var bodyGo = new GameObject("Body");
+            bodyGo.transform.SetParent(player, false);
+            playerBody = bodyGo.AddComponent<SpriteRenderer>();
+            playerBody.sprite = skin.HasEntity ? skin.EntityFrame(0f) : Art.Star();
+            playerBody.color = skin.HasEntity ? Color.white : Palette.Player;
+            playerBody.sortingOrder = 27;
 
             var glow = new GameObject("Aura");
             glow.transform.SetParent(player, false);
@@ -125,8 +138,9 @@ namespace FirstLight
 
             // the world grows a little less dark as the light climbs back toward the sky
             float ambient = 0.035f + 0.014f * index;
-            view = LevelView.Create(def, ambient);
+            view = LevelView.Create(def, ambient, skin);
             view.transform.SetParent(transform, false);
+            music.PlayFor(index, levels.Count);
 
             playerCell = def.Start;
             playerVisual = playerCell;
@@ -227,7 +241,16 @@ namespace FirstLight
             playerVisual = Vector2.Lerp(playerVisual, playerCell, 1f - Mathf.Exp(-22f * dt));
             player.position = playerVisual;
             float bob = 1f + 0.06f * Mathf.Sin(Time.time * 2.6f);
-            player.localScale = Vector3.one * bob;
+            if (skin.HasEntity)
+            {
+                playerBody.sprite = skin.EntityFrame(Time.time);
+                playerBody.transform.localScale =
+                    Vector3.one * (Skin.ScaleToCells(playerBody.sprite, 1.25f) * bob);
+            }
+            else
+            {
+                playerBody.transform.localScale = Vector3.one * bob;
+            }
             playerGlow.color = new Color(Palette.PlayerGlow.r, Palette.PlayerGlow.g,
                                          Palette.PlayerGlow.b,
                                          Palette.PlayerGlow.a * (0.8f + 0.2f * bob));

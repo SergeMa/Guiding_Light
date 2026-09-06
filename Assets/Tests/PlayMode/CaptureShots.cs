@@ -17,18 +17,23 @@ public class CaptureShots
         // import noise on the first render request and that must not abort the run
         LogAssert.ignoreFailingMessages = true;
 
-        var host = new GameObject("Game");
-        var game = host.AddComponent<GameManager>();
+        // load the shipped scene rather than building a GameManager from scratch, so
+        // the shots show the art that is actually wired up
+        yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
+            "FirstLight", UnityEngine.SceneManagement.LoadSceneMode.Single);
         yield return null;
+        yield return null;
+        var game = Object.FindAnyObjectByType<GameManager>();
+        Assert.IsNotNull(game, "the scene should hold a GameManager");
 
-        int[] want = { 29, 30, 31 };
+        int[] want = { 6, 12, 29 };
         foreach (int i in want)
         {
             game.BeginAt(i);
             for (int f = 0; f < 12; f++) yield return null;
 
             // solve-ish poses read better than the untouched start state
-            var view = host.GetComponentInChildren<LevelView>();
+            var view = Object.FindAnyObjectByType<LevelView>();
             for (int sweep = 0; sweep < 3; sweep++)
             for (int m = 0; m < view.Level.Mirrors.Count; m++)
                 for (int k = 0; k < 4; k++)
@@ -56,7 +61,6 @@ public class CaptureShots
             rt.Release();
         }
 
-        Object.Destroy(host);
         yield return null;
     }
 }

@@ -34,13 +34,15 @@ namespace FirstLight
         readonly Dictionary<Vector2Int, float> cellLight = new();
 
         Transform beamRoot, fogRoot;
+        Skin skin = new();
         float ambient;
         float roamTimer;
 
-        public static LevelView Create(LevelDef def, float ambient)
+        public static LevelView Create(LevelDef def, float ambient, Skin skin = null)
         {
             var go = new GameObject("Level: " + def.Name);
             var view = go.AddComponent<LevelView>();
+            view.skin = skin ?? new Skin();
             view.Build(def, ambient);
             return view;
         }
@@ -121,7 +123,10 @@ namespace FirstLight
                 int idx = Level.MirrorIndexAt(c);
                 Spawn("mirror-mount", Art.Circle(), pos, Order.Device, Vector2.one * 0.34f)
                     .color = new Color(0.10f, 0.12f, 0.18f);
-                var sr = Spawn("mirror", Art.MirrorPlate(), pos, Order.Device + 1, Vector2.one);
+                float mirrorScale = skin.mirror != null
+                    ? Skin.ScaleToCells(skin.mirror, 1.05f) : 1f;
+                var sr = Spawn("mirror", skin.mirror != null ? skin.mirror : Art.MirrorPlate(),
+                               pos, Order.Device + 1, Vector2.one * mirrorScale);
                 Add(new Piece
                 {
                     Cell = c, Sr = sr, Kind = ch, MirrorIndex = idx,
@@ -268,10 +273,14 @@ namespace FirstLight
                                             Palette.WardShell.b, 0.75f);
                     wardShells[ei] = shell;
                 }
-                var eye = Spawn("eye", Art.Circle(), pos, Order.Eye, Vector2.one * 0.34f);
-                eye.color = Palette.Eye;
-                var halo = Spawn("eye-glow", Art.Glow(), pos, Order.Eye - 1, Vector2.one * 1.6f);
-                halo.color = new Color(1f, 0.1f, 0.1f, 0.5f);
+                bool painted = skin.eye != null;
+                float eyeScale = painted ? Skin.ScaleToCells(skin.eye, 1.15f) : 0.34f;
+                var eye = Spawn("eye", painted ? skin.eye : Art.Circle(), pos, Order.Eye,
+                                Vector2.one * eyeScale);
+                eye.color = painted ? Color.white : Palette.Eye;
+                var halo = Spawn("eye-glow", Art.Glow(), pos, Order.Eye - 1,
+                                 Vector2.one * (painted ? 2.1f : 1.6f));
+                halo.color = new Color(1f, 0.1f, 0.1f, painted ? 0.28f : 0.5f);
                 halo.transform.SetParent(eye.transform, true);
                 eyeVisuals[ei] = eye.transform;
                 eyeHome[ei] = c;
@@ -569,8 +578,9 @@ namespace FirstLight
                     target = RoamTarget(ei, time);
 
                 t.position = Vector2.Lerp(t.position, target, 1f - Mathf.Exp(-4f * Time.deltaTime));
-                float blink = 0.30f + 0.06f * Mathf.Sin(time * 4f + ei);
-                t.localScale = Vector3.one * blink;
+                float baseScale = skin.eye != null ? Skin.ScaleToCells(skin.eye, 1.15f) : 0.30f;
+                float breathe = skin.eye != null ? 0.03f : 0.06f;
+                t.localScale = Vector3.one * (baseScale + breathe * Mathf.Sin(time * 4f + ei));
             }
         }
 

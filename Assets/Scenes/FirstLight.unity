@@ -395,3 +395,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startLevel: 0
+  touchControls: 0
+  skin:
+    entityFrames:
+    - {fileID: 3427114271967980436, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 8158605244509288230, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 6184959299203262911, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 2495864320845663737, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 6480803066212409350, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: 801598655983992016, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: -4188724102742562465, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    - {fileID: -7635366936938300408, guid: d51b78204c35afb43883bf58179ecc91, type: 3}
+    entityFps: 7
+    mirror: {fileID: 5632821140356901969, guid: 7fa6bb09869133040b01ba70bcd30262, type: 3}
+    eye: {fileID: -6981827254641702772, guid: 98a9a04caca40664b8d76dfe973d47da, type: 3}
+  stageMusic:
+  - {fileID: 8300000, guid: 705687bc62deb16468cad9fcf0ace933, type: 3}
+  - {fileID: 8300000, guid: 47b725bb5640bd740b6aa0c48ffa2a74, type: 3}
+  - {fileID: 8300000, guid: 0713d81cab72da04b959b76691e9c7bd, type: 3}
