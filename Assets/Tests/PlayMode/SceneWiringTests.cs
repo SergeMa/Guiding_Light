@@ -76,6 +76,28 @@ public class SceneWiringTests
         yield return null;
     }
 
+    [Test]
+    public void TheMusicRisesAsTheGameGoesOn()
+    {
+        int count = LevelLibrary.Build().Count;
+
+        float first = Music.VolumeFor(0, count);
+        float last = Music.VolumeFor(count - 1, count);
+        Assert.Less(first, last, "the game should end louder than it starts");
+
+        float previous = -1f;
+        for (int i = 0; i < count; i++)
+        {
+            float v = Music.VolumeFor(i, count);
+            Assert.GreaterOrEqual(v, previous, "the music must never drop back");
+            Assert.That(v, Is.InRange(0f, 1f), "volume has to stay a volume");
+            previous = v;
+        }
+
+        // a one level game should not divide by zero on its way to full volume
+        Assert.That(Music.VolumeFor(0, 1), Is.InRange(0f, 1f));
+    }
+
     [UnityTest]
     public IEnumerator NoMusicWiredIsNotAnError()
     {
